@@ -19,6 +19,7 @@ class SimulateCommand extends ContainerAwareCommand
       ->addOption('cash', null, InputOption::VALUE_REQUIRED, 'How much cash to start with.',2000)
       ->addOption('start_bet', null, InputOption::VALUE_REQUIRED, 'How big a start bet.',10)
       ->addOption('max_bet', null, InputOption::VALUE_REQUIRED, 'How much is the biggest gamble.',20000)
+      ->addOption('max_sequence', null, InputOption::VALUE_REQUIRED, 'How many in sequence befor betting.',4)
       ;
   }
 
@@ -27,6 +28,7 @@ class SimulateCommand extends ContainerAwareCommand
     $this->start_bet = $input->getOption('start_bet');
     $max_bet = $input->getOption('max_bet');
     $spin = $input->getOption('spin');
+    $this->max_sequence = $input->getOption('max_sequence');
     $multiplier = 2;
     $this->cash = $input->getOption('cash');
     $stats = array(
@@ -104,7 +106,7 @@ class SimulateCommand extends ContainerAwareCommand
 
     $trigger = 0;
 
-    if (count($this->history) < 4) {
+    if (count($this->history) < $this->max_sequence) {
       $output->writeln('<comment>Need history, not betting.</comment>');
       return;
     }
@@ -137,7 +139,7 @@ class SimulateCommand extends ContainerAwareCommand
 
   private function addToHistory($result)
   {
-    if (count($this->history) > 3) {
+    if (count($this->history) >= $this->max_sequence) {
       array_shift($this->history);
     }
 
