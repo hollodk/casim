@@ -36,11 +36,11 @@ class SimulateCommand extends ContainerAwareCommand
       $this->output($output,'<comment>Spin number: '.$this->spins.'</comment>');
 
       $this->setBet($output);
-      $result = $this->spin($output, $wheel);
+      $this->spin($output, $wheel);
 
       if ($this->bet == true) {
 
-        if ($result['color'] == $this->bet) {
+        if ($this->result['color'] == $this->bet) {
           $this->winBet($output);
         } else {
           $this->raiseBet($output);
@@ -68,11 +68,13 @@ class SimulateCommand extends ContainerAwareCommand
     $this->cash = $input->getOption('cash');
     $this->silence = $input->getOption('silence');
     $this->multiplier = 2;
+    $this->sequence = 0;
     $this->stats = array(
       'max_cash' => 0,
       'min_cash' => $this->cash,
       'max_win' => 0,
-      'max_bet' => 0
+      'max_bet' => 0,
+      'max_sequence' => 0
     );
     $this->win = 0;
     $this->history = array();
@@ -117,13 +119,13 @@ class SimulateCommand extends ContainerAwareCommand
     $this->output($output,'<comment>Betting '.$this->curr_bet.' on '.$this->bet.'</comment>');
   }
 
-  private function addToHistory($result)
+  private function addToHistory()
   {
     if (count($this->history) >= $this->start_sequence) {
       array_shift($this->history);
     }
 
-    $this->history[] = $result;
+    $this->history[] = $this->result;
   }
 
   private function spin($output, $wheel)
@@ -136,16 +138,27 @@ class SimulateCommand extends ContainerAwareCommand
     if ($this->curr_bet > $this->stats['max_bet']) $this->stats['max_bet'] = $this->curr_bet;
     if ($this->cash < $this->stats['min_cash']) $this->stats['min_cash'] = $this->cash;
 
-    $result = $wheel->getSpin();
-    $this->addToHistory($result);
-    $this->output($output,'<comment>Roulette: '.$result['color'].'/'.$result['number'].'</comment>');
+    if (isset($this->result))
+      $prev_color = $this->result['color'];
 
-    if (!isset($this->colors[$result['color']])) $this->colors[$result['color']] = 0;
-    $this->colors[$result['color']]++;
-    if (!isset($this->numbers[$result['number']])) $this->numbers[$result['number']] = 0;
-    $this->numbers[$result['number']]++;
+    $this->result = $wheel->getSpin();
 
-    return $result;
+    if (isset($prev_color) && $prev_color == $this->result['color']) {
+      $this->sequence++;
+    } else {
+      if ($this->sequence > $this->stats['max_sequence']) {
+        $this->stats['max_sequence'] = $this->sequence;
+      }
+      $this->sequence = 0;
+    }
+
+    $this->addToHistory();
+    $this->output($output,'<comment>Roulette: '.$this->result['color'].'/'.$this->result['number'].'</comment>');
+
+    if (!isset($this->colors[$this->result['color']])) $this->colors[$this->result['color']] = 0;
+    $this->colors[$this->result['color']]++;
+    if (!isset($this->numbers[$this->result['number']])) $this->numbers[$this->result['number']] = 0;
+    $this->numbers[$this->result['number']]++;
   }
 
   private function dropBet()
@@ -170,8 +183,11 @@ class SimulateCommand extends ContainerAwareCommand
   {
     $this->output($output,'');
     $output->writeln('<info>Spins: '.$this->spins.'</info>');
+    $output->writeln('');
     $output->writeln('<info>Highest win: '.$this->stats['max_win'].'</info>');
     $output->writeln('<info>Highest bet: '.$this->stats['max_bet'].'</info>');
+    $output->writeln('<info>Most sequences: '.$this->stats['max_sequence'].'</info>');
+    $output->writeln('');
     $output->writeln('<info>Highest cash: '.$this->stats['max_cash'].'</info>');
     $output->writeln('<info>Lowest cash: '.$this->stats['min_cash'].'</info>');
     $output->writeln('<info>Current cash: '.$this->cash.'</info>');
