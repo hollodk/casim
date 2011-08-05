@@ -2,8 +2,8 @@ Casino Simulator
 ================
 :Author:    Michael Holm Kristensen
 :Email:     hollo@hollo.dk
-:Date:      2011-08-05
-:Revision:  1
+:Date:      2011-08-06
+:Revision:  2
 
 
 What is this?
@@ -23,7 +23,7 @@ Basic roulette rules, play on red or black and get your bet twice the bet back.
 
 Now let say your put 10 coins on red, and the roulette turns out to be black.
 
-Simply raise your bet to 20, and now you have spent a total amount of 30 coins, and if the roulette turns out to be red you win 60 coins. If the roulette turns out to be black, will then double again and you will sooner or later win the pot..
+Simply raise your bet to 20, and now you have spent a total amount of 30 coins, and if the roulette turns out to be red you win 40 coins, which is still a win on 10 coins. If the roulette turns out to be black, will then double again and you will sooner or later win the pot..
 
 Well thats the theory, now i made this simulator to try this technic practically, so you will have a great too to test all the stories on the internet, it actually seems like you can make money if you play the game right..
 
@@ -60,7 +60,7 @@ Example
 -------
 Let me give you a quick example of how to use this software:
 
-  php app/console casim:simulate --cash 5000 --spin 200000 --max_sequence 3 --max_bet 50
+  php app/console casim:simulate --cash 5000 --spin 200000 --start_sequence 3 --max_bet 50
 
 In this example i will tell the script that:
 
@@ -70,6 +70,11 @@ In this example i will tell the script that:
   - i will drop betting if my about reaches 50 coins
 
 Try it on you own, it might be a tool that can help you become rich fast and easy :p
+
+
+Conclusion
+----------
+I cannot find any way you can win your money back garantied, so all you read about the roulette is properly scam :)
 
 
 Risk and legal
