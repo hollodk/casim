@@ -16,10 +16,10 @@ class SimulateCommand extends ContainerAwareCommand
       ->setName('casim:simulate')
       ->setDescription('Simulate Roulette')
       ->addOption('spin', null, InputOption::VALUE_REQUIRED, 'How many spin',20000)
-      ->addOption('cash', null, InputOption::VALUE_REQUIRED, 'How much cash to start with.',5000)
-      ->addOption('start_bet', null, InputOption::VALUE_REQUIRED, 'How big a start bet.',10)
+      ->addOption('cash', null, InputOption::VALUE_REQUIRED, 'How much cash to start with.',1000)
+      ->addOption('start_bet', null, InputOption::VALUE_REQUIRED, 'How big a start bet.',25)
       ->addOption('max_bet', null, InputOption::VALUE_REQUIRED, 'How much is the biggest gamble.',50)
-      ->addOption('max_sequence', null, InputOption::VALUE_REQUIRED, 'How many in sequence befor betting.',3)
+      ->addOption('max_sequence', null, InputOption::VALUE_REQUIRED, 'How many in sequence befor betting.',1)
       ;
   }
 
@@ -83,12 +83,11 @@ class SimulateCommand extends ContainerAwareCommand
           break;
         }
 
-        // this round has finished, only some debugging output after this line
-        $output->writeln('<comment>Bet: '.$this->curr_bet.' on '.$this->bet.'</comment>');
+        if ($this->curr_bet)
+          $output->writeln('<comment>Bet: '.$this->curr_bet.' on '.$this->bet.'</comment>');
       }
 
       $output->writeln('<comment>Cash: '.$this->cash.'</comment>');
-      $output->writeln('');
     }
 
     $output->writeln('');
