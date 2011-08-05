@@ -31,6 +31,7 @@ class SimulateCommand extends ContainerAwareCommand
     $this->cash = $input->getOption('cash');
     $stats = array(
       'max_cash' => 0,
+      'min_cash' => $this->cash,
       'max_win' => 0
     );
     $win = 0;
@@ -71,6 +72,7 @@ class SimulateCommand extends ContainerAwareCommand
         }
 
         if ($this->cash > $stats['max_cash']) $stats['max_cash'] = $this->cash;
+        if ($this->cash < $stats['min_cash']) $stats['min_cash'] = $this->cash;
         if ($win > $stats['max_win']) $stats['max_win'] = $win;
 
         if ($this->cash < 0) {
@@ -92,6 +94,7 @@ class SimulateCommand extends ContainerAwareCommand
     $output->writeln('<info>Spins: '.$i.'</info>');
     $output->writeln('<info>Highest win: '.$stats['max_win'].'</info>');
     $output->writeln('<info>Highest cash: '.$stats['max_cash'].'</info>');
+    $output->writeln('<info>Lowest cash: '.$stats['min_cash'].'</info>');
     $output->writeln('<info>Current cash: '.$this->cash.'</info>');
   }
 
