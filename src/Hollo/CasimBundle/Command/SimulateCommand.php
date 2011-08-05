@@ -15,11 +15,11 @@ class SimulateCommand extends ContainerAwareCommand
     $this
       ->setName('casim:simulate')
       ->setDescription('Simulate Roulette')
-      ->addOption('spin', null, InputOption::VALUE_REQUIRED, 'How many spin',10000)
-      ->addOption('cash', null, InputOption::VALUE_REQUIRED, 'How much cash to start with.',2000)
+      ->addOption('spin', null, InputOption::VALUE_REQUIRED, 'How many spin',20000)
+      ->addOption('cash', null, InputOption::VALUE_REQUIRED, 'How much cash to start with.',5000)
       ->addOption('start_bet', null, InputOption::VALUE_REQUIRED, 'How big a start bet.',10)
-      ->addOption('max_bet', null, InputOption::VALUE_REQUIRED, 'How much is the biggest gamble.',20000)
-      ->addOption('max_sequence', null, InputOption::VALUE_REQUIRED, 'How many in sequence befor betting.',4)
+      ->addOption('max_bet', null, InputOption::VALUE_REQUIRED, 'How much is the biggest gamble.',50)
+      ->addOption('max_sequence', null, InputOption::VALUE_REQUIRED, 'How many in sequence befor betting.',3)
       ;
   }
 
