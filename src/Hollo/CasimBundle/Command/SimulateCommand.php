@@ -48,9 +48,10 @@ class SimulateCommand extends ContainerAwareCommand
 
       $output->writeln('');
       $output->writeln('<comment>Spin number: '.$i.'</comment>');
-      $this->cash -= $this->curr_bet;
 
       $this->setBet($output);
+      $output->writeln('<comment>Cash is '.$this->cash.' we take '.$this->curr_bet.' for next spin, new cash is '.($this->cash-$this->curr_bet).'</comment>');
+      $this->cash -= $this->curr_bet;
       $result = $this->spin($output, $wheel);
 
       if ($this->bet == false) {
@@ -138,7 +139,7 @@ class SimulateCommand extends ContainerAwareCommand
     }
 
     $this->curr_bet = $this->start_bet;
-    $output->writeln('<comment>Betting on '.$this->curr_bet.' on '.$this->bet.'</comment>');
+    $output->writeln('<comment>Betting '.$this->curr_bet.' on '.$this->bet.'</comment>');
   }
 
   private function addToHistory($result)
