@@ -76,6 +76,8 @@ class SimulateCommand extends ContainerAwareCommand
     );
     $this->win = 0;
     $this->history = array();
+    $this->numbers = array();
+    $this->colors = array();
   }
 
   private function setBet($output)
@@ -137,6 +139,11 @@ class SimulateCommand extends ContainerAwareCommand
     $result = $wheel->getSpin();
     $this->addToHistory($result);
     $this->output($output,'<comment>Roulette: '.$result['color'].'/'.$result['number'].'</comment>');
+
+    if (!isset($this->colors[$result['color']])) $this->colors[$result['color']] = 0;
+    $this->colors[$result['color']]++;
+    if (!isset($this->numbers[$result['number']])) $this->numbers[$result['number']] = 0;
+    $this->numbers[$result['number']]++;
 
     return $result;
   }

@@ -92,6 +92,13 @@ class Wheel
     public function getSpin()
     {
       $wheel = $this->getWheel();
-      return $wheel[array_rand($wheel)];
+      mt_srand($this->make_seed());
+      return $wheel[mt_rand(0,count($wheel)-1)];
+    }
+
+    function make_seed()
+    {
+      list($usec, $sec) = explode(' ', microtime());
+      return (float) $sec + ((float) $usec * 100000);
     }
 }
