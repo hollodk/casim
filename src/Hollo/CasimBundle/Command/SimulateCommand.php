@@ -20,6 +20,7 @@ class SimulateCommand extends ContainerAwareCommand
       ->addOption('start_bet', null, InputOption::VALUE_REQUIRED, 'How big a start bet.',25)
       ->addOption('max_bet', null, InputOption::VALUE_REQUIRED, 'How much is the biggest gamble.',50)
       ->addOption('start_sequence', null, InputOption::VALUE_REQUIRED, 'How many in sequence befor betting.',1)
+      ->addOption('silence', null, InputOption::VALUE_REQUIRED, 'Will you have output?',false)
       ;
   }
 
@@ -31,31 +32,25 @@ class SimulateCommand extends ContainerAwareCommand
 
     for ($this->spins = 0; $this->spins < $this->spin; $this->spins++) {
 
-      $output->writeln('');
-      $output->writeln('<comment>Spin number: '.$this->spins.'</comment>');
+      $this->output($output,'');
+      $this->output($output,'<comment>Spin number: '.$this->spins.'</comment>');
 
       $this->setBet($output);
       $result = $this->spin($output, $wheel);
 
-      if ($this->bet == false) {
-        $output->writeln('<comment>Skip turn.</comment>');
-      } else {
+      if ($this->bet == true) {
 
         if ($result['color'] == $this->bet) {
           $this->winBet($output);
-          $this->dropBet();
-
         } else {
-          $this->raiseBet();
-          $output->writeln('<comment>Did not win, raising bet to '.$this->curr_bet.' on '.$this->bet.'</comment>');
-        }
+          $this->raiseBet($output);
+          $this->validateBet($output);
 
-        $this->validateBet($output);
-
-        if ($this->cash < 0) {
-          $output->writeln('');
-          $output->writeln('<error>You dont have enough cash :(</error>');
-          break;
+          if (($this->cash-$this->curr_bet) < 0) {
+            $this->output($output,'');
+            $output->writeln('<error>You have lost all your money, depot your childs savings to continue..!</error>');
+            break;
+          }
         }
       }
       $this->writeSpinSummary($output);
@@ -71,6 +66,7 @@ class SimulateCommand extends ContainerAwareCommand
     $this->spin = $input->getOption('spin');
     $this->start_sequence = $input->getOption('start_sequence');
     $this->cash = $input->getOption('cash');
+    $this->silence = $input->getOption('silence');
     $this->multiplier = 2;
     $this->stats = array(
       'max_cash' => 0,
@@ -88,7 +84,7 @@ class SimulateCommand extends ContainerAwareCommand
       $trigger = 0;
 
       if (count($this->history) < $this->start_sequence) {
-        $output->writeln('<comment>Need history, not betting.</comment>');
+        $this->output($output,'<comment>Need history, not betting.</comment>');
         return;
       }
 
@@ -103,7 +99,7 @@ class SimulateCommand extends ContainerAwareCommand
 
       if ($trigger) {
         $this->dropBet();
-        $output->writeln('<comment>Bad pattern in last rounds on roulette..</comment>');
+        $this->output($output,'<comment>Bad pattern in last rounds on roulette, not playing.</comment>');
         return;
       }
 
@@ -116,7 +112,7 @@ class SimulateCommand extends ContainerAwareCommand
 
       $this->curr_bet = $this->start_bet;
     }
-    $output->writeln('<comment>Betting '.$this->curr_bet.' on '.$this->bet.'</comment>');
+    $this->output($output,'<comment>Betting '.$this->curr_bet.' on '.$this->bet.'</comment>');
   }
 
   private function addToHistory($result)
@@ -131,15 +127,16 @@ class SimulateCommand extends ContainerAwareCommand
   private function spin($output, $wheel)
   {
     if ($this->curr_bet)
-      $output->writeln('<comment>Cash is '.$this->cash.' we take '.$this->curr_bet.' for next spin, new cash is '.($this->cash-$this->curr_bet).'</comment>');
+      $this->output($output,'<comment>Cash is '.$this->cash.' we take '.$this->curr_bet.' for next spin, new cash is '.($this->cash-$this->curr_bet).'</comment>');
 
     $this->cash -= $this->curr_bet;
 
+    if ($this->curr_bet > $this->stats['max_bet']) $this->stats['max_bet'] = $this->curr_bet;
     if ($this->cash < $this->stats['min_cash']) $this->stats['min_cash'] = $this->cash;
 
     $result = $wheel->getSpin();
     $this->addToHistory($result);
-    $output->writeln('<comment>Roulette: '.$result['color'].'/'.$result['number'].'</comment>');
+    $this->output($output,'<comment>Roulette: '.$result['color'].'/'.$result['number'].'</comment>');
 
     return $result;
   }
@@ -157,17 +154,14 @@ class SimulateCommand extends ContainerAwareCommand
     if ($this->curr_bet*2 > $this->stats['max_win']) $this->stats['max_win'] = $this->curr_bet*2;
     if ($this->cash > $this->stats['max_cash']) $this->stats['max_cash'] = $this->cash;
 
-    $output->writeln('<info>YOU WIN '.($this->curr_bet*2).'</info>');
-  }
+    $this->output($output,'<info>YOU WIN '.($this->curr_bet*2).'</info>');
 
-  private function setStats()
-  {
-    if ($this->curr_bet > $this->stats['max_bet']) $this->stats['max_bet'] = $this->curr_bet;
+    $this->dropBet();
   }
 
   private function writeStats($input, $output)
   {
-    $output->writeln('');
+    $this->output($output,'');
     $output->writeln('<info>Spins: '.$this->spins.'</info>');
     $output->writeln('<info>Highest win: '.$this->stats['max_win'].'</info>');
     $output->writeln('<info>Highest bet: '.$this->stats['max_bet'].'</info>');
@@ -175,29 +169,41 @@ class SimulateCommand extends ContainerAwareCommand
     $output->writeln('<info>Lowest cash: '.$this->stats['min_cash'].'</info>');
     $output->writeln('<info>Current cash: '.$this->cash.'</info>');
     $output->writeln('');
+
     $output->writeln('<info>Time spent (40 seconds per spin): '.round(($this->spins*40/60/60),2).' hours or '.round(($this->spins*40/60/60/24),2).' days</info>');
-    $profit = $this->cash - $input->getOption('cash');
+
+    if ($this->cash-$this->curr_bet < 0) {
+      $profit = $input->getOption('cash')*-1;
+    } else {
+      $profit = $this->cash - $input->getOption('cash');
+    }
+
     $profit_hour = $profit/($this->spins*40/60/60);
-    $output->writeln('<info>Profit: '.$profit.' ,- or '.round($profit_hour,2).'/h</info>');
+    $output->writeln('<info>Profit: '.$profit.',- or '.round($profit_hour,2).'/h</info>');
   }
 
-  private function raiseBet()
+  private function raiseBet($output)
   {
     $this->curr_bet = $this->curr_bet*$this->multiplier;
+    $this->output($output,'<comment>Did not win, raising bet to '.$this->curr_bet.' on '.$this->bet.'</comment>');
   }
 
   private function validateBet($output)
   {
     if ($this->max_bet > 0 && $this->curr_bet > $this->max_bet) {
-      $output->writeln('<error>Bet too high, resetting...</error>');
+      $this->output($output,'<error>Bet too high, resetting...</error>');
       $this->curr_bet = $this->start_bet;
     }
-
-    $this->setStats();
   }
 
   private function writeSpinSummary($output)
   {
-    $output->writeln('<comment>Cash: '.$this->cash.'</comment>');
+    $this->output($output,'<comment>Cash: '.$this->cash.'</comment>');
+  }
+
+  private function output($output, $msg)
+  {
+    if (!$this->silence)
+      $output->writeln($msg);
   }
 }
