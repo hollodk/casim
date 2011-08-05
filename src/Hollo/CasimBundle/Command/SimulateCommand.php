@@ -19,7 +19,7 @@ class SimulateCommand extends ContainerAwareCommand
       ->addOption('cash', null, InputOption::VALUE_REQUIRED, 'How much cash to start with.',1000)
       ->addOption('start_bet', null, InputOption::VALUE_REQUIRED, 'How big a start bet.',25)
       ->addOption('max_bet', null, InputOption::VALUE_REQUIRED, 'How much is the biggest gamble.',50)
-      ->addOption('max_sequence', null, InputOption::VALUE_REQUIRED, 'How many in sequence befor betting.',1)
+      ->addOption('start_sequence', null, InputOption::VALUE_REQUIRED, 'How many in sequence befor betting.',1)
       ;
   }
 
@@ -69,7 +69,7 @@ class SimulateCommand extends ContainerAwareCommand
     $this->start_bet = $input->getOption('start_bet');
     $this->max_bet = $input->getOption('max_bet');
     $this->spin = $input->getOption('spin');
-    $this->max_sequence = $input->getOption('max_sequence');
+    $this->start_sequence = $input->getOption('start_sequence');
     $this->cash = $input->getOption('cash');
     $this->multiplier = 2;
     $this->stats = array(
@@ -87,7 +87,7 @@ class SimulateCommand extends ContainerAwareCommand
     if (!$this->game_on) {
       $trigger = 0;
 
-      if (count($this->history) < $this->max_sequence) {
+      if (count($this->history) < $this->start_sequence) {
         $output->writeln('<comment>Need history, not betting.</comment>');
         return;
       }
@@ -102,8 +102,8 @@ class SimulateCommand extends ContainerAwareCommand
       }
 
       if ($trigger) {
+        $this->dropBet();
         $output->writeln('<comment>Bad pattern in last rounds on roulette..</comment>');
-        $this->bet = false;
         return;
       }
 
@@ -121,7 +121,7 @@ class SimulateCommand extends ContainerAwareCommand
 
   private function addToHistory($result)
   {
-    if (count($this->history) >= $this->max_sequence) {
+    if (count($this->history) >= $this->start_sequence) {
       array_shift($this->history);
     }
 
@@ -130,7 +130,9 @@ class SimulateCommand extends ContainerAwareCommand
 
   private function spin($output, $wheel)
   {
-    $output->writeln('<comment>Cash is '.$this->cash.' we take '.$this->curr_bet.' for next spin, new cash is '.($this->cash-$this->curr_bet).'</comment>');
+    if ($this->curr_bet)
+      $output->writeln('<comment>Cash is '.$this->cash.' we take '.$this->curr_bet.' for next spin, new cash is '.($this->cash-$this->curr_bet).'</comment>');
+
     $this->cash -= $this->curr_bet;
 
     if ($this->cash < $this->stats['min_cash']) $this->stats['min_cash'] = $this->cash;
