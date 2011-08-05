@@ -34,7 +34,8 @@ class SimulateCommand extends ContainerAwareCommand
     $stats = array(
       'max_cash' => 0,
       'min_cash' => $this->cash,
-      'max_win' => 0
+      'max_win' => 0,
+      'max_bet' => 0
     );
     $win = 0;
     $this->history = array();
@@ -69,7 +70,7 @@ class SimulateCommand extends ContainerAwareCommand
           $output->writeln('<comment>Did not win, raising bet to '.$this->curr_bet.' on '.$this->bet.'</comment>');
         }
 
-        if ($this->curr_bet > $max_bet) {
+        if ($max_bet > 0 && $this->curr_bet > $max_bet) {
           $output->writeln('<error>Bet too high, resetting...</error>');
           $this->curr_bet = $this->start_bet;
         }
@@ -77,6 +78,7 @@ class SimulateCommand extends ContainerAwareCommand
         if ($this->cash > $stats['max_cash']) $stats['max_cash'] = $this->cash;
         if ($this->cash < $stats['min_cash']) $stats['min_cash'] = $this->cash;
         if ($win > $stats['max_win']) $stats['max_win'] = $win;
+        if ($this->curr_bet > $stats['max_bet']) $stats['max_bet'] = $this->curr_bet;
 
         if ($this->cash < 0) {
           $output->writeln('');
@@ -94,6 +96,7 @@ class SimulateCommand extends ContainerAwareCommand
     $output->writeln('');
     $output->writeln('<info>Spins: '.$i.'</info>');
     $output->writeln('<info>Highest win: '.$stats['max_win'].'</info>');
+    $output->writeln('<info>Highest bet: '.$stats['max_bet'].'</info>');
     $output->writeln('<info>Highest cash: '.$stats['max_cash'].'</info>');
     $output->writeln('<info>Lowest cash: '.$stats['min_cash'].'</info>');
     $output->writeln('<info>Current cash: '.$this->cash.'</info>');
