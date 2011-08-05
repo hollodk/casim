@@ -8,4 +8,70 @@ Casino Simulator
 
 What is this?
 -------------
-This is a roulette simulator to find out the odds to win the biggest pods.
+This is an american roulette simulator to find out the odds to win the biggest pods.
+
+You might have read a lot of pages about "Ohh.. i just won so and so much on the roulette.. and blah blah blah..", i just tried, i thought it could be funny, so i decided to give them some money and give it a try.. That was stupid..!
+
+So i made this tool to simulate how i can get the best return of my money :)
+
+
+History
+-------
+I read some articles on the internet about this smart system:
+
+Basic roulette rules, play on red or black and get your bet twice the bet back.
+
+Now let say your put 10 coins on red, and the roulette turns out to be black.
+
+Simply raise your bet to 20, and now you have spent a total amount of 30 coins, and if the roulette turns out to be red you win 60 coins. If the roulette turns out to be black, will then double again and you will sooner or later win the pot..
+
+Well thats the theory, now i made this simulator to try this technic practically, so you will have a great too to test all the stories on the internet, it actually seems like you can make money if you play the game right..
+
+
+Requirements
+------------
+
+Well there is included a tool to check requirements, just download the package and run the command:
+
+  ./app/check.php
+
+it will print you a detailed view if anything does work as expected.
+
+
+How to use?
+-----------
+Its pretty easy to use this tool, simply:
+
+Download the package, its a default symfony installation: http://www.symfony.com
+
+  tar xzf casim.tgz
+  cd casim
+  chmod -R 777 app/logs app/cache
+  php app/console casim:simulate
+
+It will generate a run with some default data, you should try to run:
+
+  php app/console casim:simulate --help
+
+here you can read all about the options for the utils..
+
+
+Example
+-------
+Let me give you a quick example of how to use this software:
+
+  php app/console casim:simulate --cash 5000 --spin 200000 --max_sequence 3 --max_bet 50
+
+In this example i will tell the script that:
+
+  - i will start with 5000 coins
+  - i will simulate 200.000 spins in the roulette
+  - i will start betting after 3 sequencial colors (red or black)
+  - i will drop betting if my about reaches 50 coins
+
+Try it on you own, it might be a tool that can help you become rich fast and easy :p
+
+
+Risk and legal
+--------------
+I really dont know if this kind of software is okay to use on sites, so use it 100% at your own risk.
