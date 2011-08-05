@@ -92,12 +92,17 @@ class SimulateCommand extends ContainerAwareCommand
     }
 
     $output->writeln('');
-
     $output->writeln('<info>Spins: '.$i.'</info>');
     $output->writeln('<info>Highest win: '.$stats['max_win'].'</info>');
     $output->writeln('<info>Highest cash: '.$stats['max_cash'].'</info>');
     $output->writeln('<info>Lowest cash: '.$stats['min_cash'].'</info>');
     $output->writeln('<info>Current cash: '.$this->cash.'</info>');
+    $output->writeln('');
+    $output->writeln('<info>Time spent (40 seconds per spin): '.round(($i*40/60/60),2).' hours or '.round(($i*40/60/60/24),2).' days</info>');
+    $profit = $this->cash - $input->getOption('cash');
+    $profit_hour = $profit/($i*40/60/60);
+    $output->writeln('<info>Profit: '.$profit.' ,- or '.round($profit_hour,2).'/h</info>');
+
   }
 
   private function setBet($output)
