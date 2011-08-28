@@ -57,3 +57,7 @@
     git=http://github.com/symfony/AsseticBundle.git
     target=/bundles/Symfony/Bundle/AsseticBundle
     version=v1.0.0RC2
+
+[HolloCasimBundle]
+    git=http://github.com/hollodk/HolloCasimBundle.git
+    target=/bundles/Hollo/CasimBundle
