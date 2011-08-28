@@ -37,6 +37,12 @@ Well there is included a tool to check requirements, just download the package a
 
 it will print you a detailed view if anything does work as expected.
 
+Afterwards install dependencies:
+
+  ./bin/vendors install
+
+And you are ready to go.
+
 
 How to use?
 -----------
